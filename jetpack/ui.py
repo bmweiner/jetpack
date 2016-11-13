@@ -37,8 +37,6 @@ if __name__ == '__main__':
     parser.add_argument('-d', metavar='destination', dest='destination',
                         help='destination directory (default: current \
                               directory)')
-    parser.add_argument('-l', metavar='license', dest='license',
-                        help='license directory (default: <hanger>/license/)')
     kwargs = vars(parser.parse_args())
 
     # validate hanger
@@ -63,12 +61,6 @@ if __name__ == '__main__':
         kwargs['destination'] = _exp_path(kwargs.get('destination'))
     else:
         kwargs['destination'] = _exp_path(os.curdir)
-
-    # validate license:
-    if kwargs.get('license'):
-        kwargs['license'] = _exp_path(kwargs.get('license'))
-    else:
-        kwargs['license'] = None
 
     # collect kwargs
     kwargs['name'] = input('name: ')
