@@ -34,6 +34,7 @@ class Pack(object):
         self.manifest = {}
 
         self._validate_args()
+        self.partials = Partials(self.hanger)
         self.read_cfg(os.path.join(self.hanger, self.name))  # init config
         self.path = self.find_path(license)
         self.read_cfg(self.find_meta('cfg'))
@@ -167,7 +168,7 @@ class Pack(object):
             dest: str. Destination directory.
         """
         exclude = self._check_str(exclude)
-        renderer = pystache.Renderer()
+        renderer = pystache.Renderer(partials=self.partials)
 
         # build manifest
         manifest = {}
@@ -195,6 +196,16 @@ class Pack(object):
                         raise
             with open(dest, 'w') as f:
                 f.write(renderer.render_path(src, self.context))
+
+class Partials(object):
+    def __init__(self, hanger):
+        self.hanger = hanger
+    def get(self, path):
+        try:
+            with open(os.path.join(self.hanger, path)) as f:
+                return f.read()
+        except IOError:
+            return None
 
 def launch(hanger, pack, name, description, destination, license=None):
     pack = Pack(hanger, pack, license)
