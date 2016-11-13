@@ -34,9 +34,9 @@ if __name__ == '__main__':
                         help='pack name')
     parser.add_argument('-s', metavar='hanger', dest='hanger',
                         help='hanger directory{}'.format(hanger_str))
-    parser.add_argument('-d', metavar='destination', dest='destination',
-                        help='destination directory (default: current \
-                              directory)')
+    parser.add_argument('-d', metavar='destination', dest='dest',
+                        help='destination directory (default: current ' \
+                              'directory)')
     kwargs = vars(parser.parse_args())
 
     # validate hanger
@@ -57,10 +57,10 @@ if __name__ == '__main__':
             config.write(f)
 
     # validate dest
-    if kwargs.get('destination'):
-        kwargs['destination'] = _exp_path(kwargs.get('destination'))
+    if kwargs.get('dest'):
+        kwargs['dest'] = _exp_path(kwargs.get('dest'))
     else:
-        kwargs['destination'] = _exp_path(os.curdir)
+        kwargs['dest'] = _exp_path(os.curdir)
 
     # collect kwargs
     kwargs['name'] = input('name: ')

@@ -26,31 +26,26 @@ class Pack(object):
         self.hanger = hanger
         self.name = name
         self.cfg = ConfigParser.ConfigParser()
+        self.hierarchy = []
+        self.partials = Partials(self.hanger)
         self.context = {}
         self.templates = []
         self.manifest = {}
 
         self._validate_args()
-        self.partials = Partials(self.hanger)
-        self.read_cfg(os.path.join(self.hanger, self.name))  # init config
-        self.path = self.find_path()
+        self.find_hierarchy()
         self.read_cfg(self.find_meta('cfg'))
         self.update_context(self.builtin_context())
         self.read_context(self.find_meta('json'))
         exclude = [self.meta['cfg'], self.meta['json']]
         self.templates = self.find_templates(exclude)
 
-    def _validate_args(self):
-        path = os.path.join(self.hanger, self.name)
-        if not os.path.exists(path):
-            raise IOError('No such pack: {}'.format(path))
-
-    def _check_str(self, path):
+    def _check_str(self, s):
         """Force str to iterable."""
-        if isinstance(path, basestring):
-            return [path]
+        if isinstance(s, basestring):
+            return [s]
         else:
-            return path
+            return s
 
     def _split_cfg(self, val):
         return [v.strip() for v in val.split(',')]
@@ -70,6 +65,45 @@ class Pack(object):
                 return False
         return True
 
+    def _validate_args(self):
+        # check directories exist.
+        path = os.path.join(self.hanger, self.name)
+        if not os.path.exists(path):
+            raise IOError('No such pack: {}'.format(path))
+
+    def _add_base(self, hanger, name, meta):
+        cfg = ConfigParser.ConfigParser()
+        cfg.read(os.path.join(hanger, name, meta))
+        try:
+            bases = self._split_cfg(cfg.get('class', 'base'))
+            for base in bases:  # add bases for this name first
+                if base == self.hierarchy[-1]:
+                    if base == name:
+                        raise RuntimeError("'{}' inherits itself.".format(base))
+                elif base in self.hierarchy:
+                    raise RuntimeError("'{}' creates a circular inheritance " \
+                                       "by inheriting '{}'.".format(name, base))
+                else:
+                    self.hierarchy.append(base)
+            for base in bases:  # add parents of the bases
+                self._add_base(hanger, base, meta)
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+            pass
+
+    def find_hierarchy(self):
+        """Resolution order."""
+        self.hierarchy = []
+        self.hierarchy.append(self.name)
+        self._add_base(self.hanger, self.name, self.meta['cfg'])
+
+    def find_meta(self, meta):
+        paths = []
+        for pack in reversed(self.hierarchy + ['']):
+            path = os.path.join(self.hanger, pack, self.meta[meta])
+            if os.path.exists(path):
+                paths.append(path)
+        return paths
+
     def read_cfg(self, path):
         paths = self._check_str(path)
         self.cfg.read(paths)
@@ -79,28 +113,6 @@ class Pack(object):
             return self.cfg.get(section, option)
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             return default
-
-    def find_path(self):
-        """Find paths for pack and base(s).
-
-        Returns:
-            dict: Paths to pack and base(s) if exist.
-        """
-        path = {}
-        path['pack'] = os.path.join(self.hanger, self.name)
-        path['base'] = []
-        bases = self.get_cfg('class', 'base')
-        if bases:
-            for base in self._split_cfg(bases):
-                path['base'].append(os.path.join(self.hanger, base))
-        return path
-
-    def find_meta(self, meta):
-        paths = [os.path.join(self.hanger, self.meta[meta])]
-        for path in self.path['base'] + [self.path['pack']]:
-            paths.append(os.path.join(path, self.meta[meta]))
-
-        return [p for p in paths if os.path.exists(p)]
 
     def builtin_context(self):
         context = {}
@@ -140,40 +152,37 @@ class Pack(object):
         self.context.update(context)
 
     def find_templates(self, exclude=[]):
-        """Find template(s) at self.path.
+        """Find template(s).
 
         Args:
             exclude: iterable of str. Filenames to exclude.
         """
         exclude = self._check_str(exclude)
-        class_exclude = self.get_cfg('class', 'exclude')
-        if class_exclude:
-            exclude += self._split_cfg(class_exclude)
         paths = []
-        for path in self.path['base'] + [self.path['pack']]:
+        for pack in reversed(self.hierarchy):
+            path = os.path.join(self.hanger, pack)
             paths += self._get_files(path)
         return [p for p in paths if self._valid_path(os.path.join(*p), exclude)]
 
-    def build(self, dest, exclude=[]):
+    def build(self, name, description, dest='.'):
         """Build package from template.
 
         Args:
             dest: str. Destination directory.
         """
-        exclude = self._check_str(exclude)
+        self.update_context(dict(name=name, description=description))
         renderer = pystache.Renderer(partials=self.partials)
 
         # build manifest
         manifest = {}
-        for src, rel in self.templates:
-            manifest[os.path.join(src, rel)] = os.path.join(dest, rel)
+        for root, rel in self.templates:
+            manifest[os.path.join(root, rel)] = os.path.join(dest, rel)
 
-        # render paths and remove excludes
+        # render paths
         for src, dest in six.iteritems(manifest):
-            if self._valid_path(src, exclude):
-                self.manifest[src] = renderer.render(dest, self.context)
+            self.manifest[src] = renderer.render(dest, self.context)
 
-        # render templates and create package
+        # render and write templates
         for src, dest in six.iteritems(self.manifest):
             # create dest dir if needed
             if not os.path.exists(os.path.dirname(dest)):
@@ -195,8 +204,7 @@ class Partials(object):
         except IOError:
             return None
 
-def launch(hanger, pack, name, description, destination):
+def launch(hanger, pack, name, description, dest='.'):
     pack = Pack(hanger, pack)
-    context = dict(name=name, description=description)
-    pack.update_context(context)
-    pack.build(destination)
+    pack.update_context(dict(name=name, description=description))
+    pack.build(name, description, dest)
