@@ -3,6 +3,7 @@
 import os
 import ConfigParser
 import json
+import datetime
 import six
 import pystache
 
@@ -13,35 +14,31 @@ class Pack(object):
         meta: dict. Defaults.
         ...
     """
-    def __init__(self, hanger, name, license=None):
+    def __init__(self, hanger, name):
         """Init pack.
 
         Args:
             hanger: str. Path to hanger directory.
             name: str. Name of package template.
-            license: str. Path to license directory. If None, will search hanger
-                for a directory named `license`.
         """
         self.meta = {'cfg': 'pack.cfg',
-                     'json': 'pack.json',
-                     'license': 'license'}
+                     'json': 'pack.json'}
         self.hanger = hanger
         self.name = name
         self.cfg = ConfigParser.ConfigParser()
         self.context = {}
         self.templates = []
-        self.license = None
         self.manifest = {}
 
         self._validate_args()
         self.partials = Partials(self.hanger)
         self.read_cfg(os.path.join(self.hanger, self.name))  # init config
-        self.path = self.find_path(license)
+        self.path = self.find_path()
         self.read_cfg(self.find_meta('cfg'))
+        self.update_context(self.builtin_context())
         self.read_context(self.find_meta('json'))
         exclude = [self.meta['cfg'], self.meta['json']]
         self.templates = self.find_templates(exclude)
-        self.find_license()
 
     def _validate_args(self):
         path = os.path.join(self.hanger, self.name)
@@ -77,30 +74,20 @@ class Pack(object):
         paths = self._check_str(path)
         self.cfg.read(paths)
 
-    def get_cfg(self, section, option, cfg=None):
-        if not cfg:
-            cfg = self.cfg
+    def get_cfg(self, section, option, default=None):
         try:
-            return cfg.get(section, option)
+            return self.cfg.get(section, option)
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            return None
+            return default
 
-    def find_path(self, license=None):
-        """Find paths for pack, base(s), and license.
-
-        Args:
-            license: str. Path to license directory. If None, will search hanger
-                for a directory named `license`.
+    def find_path(self):
+        """Find paths for pack and base(s).
 
         Returns:
-            dict: Paths to pack, base(s) and license if exist.
+            dict: Paths to pack and base(s) if exist.
         """
         path = {}
         path['pack'] = os.path.join(self.hanger, self.name)
-        if license:
-            path['license'] = license
-        else:
-            path['license'] = os.path.join(self.hanger, self.meta['license'])
         path['base'] = []
         bases = self.get_cfg('class', 'base')
         if bases:
@@ -114,6 +101,19 @@ class Pack(object):
             paths.append(os.path.join(path, self.meta[meta]))
 
         return [p for p in paths if os.path.exists(p)]
+
+    def builtin_context(self):
+        context = {}
+        # datetime
+        # https://docs.python.org/2/library/time.html#time.strftime
+        today = datetime.datetime.today()
+        forms = dict(today = '%c',
+                     year = '%Y', month = '%m', day = '%d',
+                     hour = '%H', minute = '%M', second = '%S')
+        for tag, val in six.iteritems(forms):
+            context[tag] = today.strftime(self.get_cfg('datetime', tag, val))
+
+        return context
 
     def read_context(self, path):
         """Read context file(s).
@@ -154,13 +154,6 @@ class Pack(object):
             paths += self._get_files(path)
         return [p for p in paths if self._valid_path(os.path.join(*p), exclude)]
 
-    def find_license(self, name=None):
-        name = name or self.get_cfg('license', 'name')
-        if name:
-            licenses = os.listdir(self.path['license'])
-            name = [l for l in licenses if name in l][0]
-            self.license = (self.path['license'], name)
-
     def build(self, dest, exclude=[]):
         """Build package from template.
 
@@ -174,11 +167,6 @@ class Pack(object):
         manifest = {}
         for src, rel in self.templates:
             manifest[os.path.join(src, rel)] = os.path.join(dest, rel)
-        if self.license:
-            license_src = os.path.join(*self.license)
-            shim = self.get_cfg('license', 'dest') or ''
-            license_dest = os.path.join(dest, shim, 'LICENSE')
-            manifest[license_src] = license_dest
 
         # render paths and remove excludes
         for src, dest in six.iteritems(manifest):
@@ -207,9 +195,8 @@ class Partials(object):
         except IOError:
             return None
 
-def launch(hanger, pack, name, description, destination, license=None):
-    pack = Pack(hanger, pack, license)
-    context = dict(name=name,
-                   description=description)
+def launch(hanger, pack, name, description, destination):
+    pack = Pack(hanger, pack)
+    context = dict(name=name, description=description)
     pack.update_context(context)
     pack.build(destination)
