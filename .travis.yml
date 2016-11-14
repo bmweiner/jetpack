@@ -6,7 +6,7 @@ addons:
   apt_packages:
   - pandoc
 install: pip install -r requirements.txt
-script: true  # no tests
+script: true
 deploy:
   provider: pypi
   user: bmweiner
@@ -17,3 +17,6 @@ deploy:
     distributions: sdist bdist_wheel
     repo: bmweiner/jetpack
     condition: "$TRAVIS_PYTHON_VERSION = '2.7'"
+env:
+  global:
+    secure: Eo1tTQHk/b29VVYA+8wUQhY1lgyYwVozoKomCRLkiazziDHxqlIQOSXH6WQYCyqkEQA30rVLI5VwD1VjOFH4Wq+7i3dkSCfO8SEGWM4Fe2KINS6U/4/QkEats4pvtAnsoCmri8ZotsveSsr3JvKxKjzzwUhMYanXdS8JkyMfqPmcBJucVt7BARlD8TmDwD/oJfxnLezaBTx/goywHIAsjcSlJawrtU+dBPfMWsIdvQgansWvcAY6VNGWCaefP+ojLzB0juWwn03ibW0eBzm27q1ux8p91pDllf5u4o0rS2guxXtiZtg9G2ICt0R4NDrskOIIAz1nPnAcvvkEzwZDLy8BeF1UJUSpIeqB+WCYnkZUm6D4/0S27AlpiSd1fW77QypwoYCMm9RQSr7Mw4YTY1wQgzwnrQKKiESXoFpBV1cjHk9HecyLfJGEsWon1L/B9+WOIz6jqeYBZXG4T0p4sb0YXBdLLpTNNvZftHEWWYhwTrmBQB5RcTp+UBzmhR/Y/6Ql6RV7Exvix9tg5o908k1ZNvSbwVzO3UFBtzmgdrcCLe9IbYswX/c3xlM4Z9/723NpqhVfHiP6diLDh/Oa9Ge1eTA3WT15xN503IB5zJR6IxS8vNo0j2wDLbjmxU8recrai8IHYoCRu68JxA/ADtkjeytnRCBdYI7ng6ozwM4=
