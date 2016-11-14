@@ -1,6 +1,6 @@
-"""A utility for building jetpack templates."""
+"""A package templating system."""
 
 from . import core
 from .core import Pack, launch
 
-__version__ = '0.1'
+__version__ = '0.2'
