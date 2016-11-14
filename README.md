@@ -28,7 +28,7 @@ A simple hanger might look like this:
 
 Each pack has it's own directory in the hanger and contains all the
 subdirectories and template files for that pack. Additionally `pack.cfg` and
-`pack.json` files may exist at the hanger and/or package level.
+`pack.json` files may exist at the hanger and/or pack level.
 
 ### Template Files
 
@@ -60,7 +60,7 @@ hanger/pack.json
       "team": "New England Patriots"
     }
 
-pack1/pack.json
+hanger/pack1/pack.json
 
     {
       "first": "Bill",
@@ -70,8 +70,8 @@ pack1/pack.json
 
 #### Built-in Context
 
-The default context includes the following tags, which
-can be overwritten in a context file if desired.
+The default context includes the following tags, which can be overwritten in a
+context file, if desired.
 
 **datetime**
 
@@ -103,9 +103,9 @@ inherited in the following order:
  * pack bases (recursive)
  * hanger
 
- Circular imports are not permitted.
+Circular imports are not permitted.
 
-Set built-in context tags format using the datetime
+Set the format of built-in context tags by using the datetime
 [directives](https://docs.python.org/2/library/time.html#time.strftime).
 
     [datetime]
@@ -133,6 +133,8 @@ jetpack provides a terminal command `jetpack`:
     $ jetpack python -s /path/to/hanger
     name: my_package
     description: The best package!
+
+try `jetpack --help` for additional details on usage.
 
 and a python module for interaction:
 
