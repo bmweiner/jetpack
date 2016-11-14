@@ -1,0 +1,19 @@
+language: python
+python:
+- '2.7'
+- '3.5'
+addons:
+  apt_packages:
+  - pandoc
+install: pip install .
+script: true  # no tests
+deploy:
+  provider: pypi
+  user: bmweiner
+  password:
+    secure: igsWG2of9eiqRoYyCf6x+DmOchDd4ypxQhLOlsfy0SOuaNy25/M4n5GkgbOoY2pJhwd0Os8UoBbpmdoL5o9vlMrfBNQCUxom0/sYgxjHDrUJlZyRtm9U/gdu0VN83/vcz2a2tuLbi6zRKAGJfMosGN2ledrnRTMFTv0oRykVVb0QiWDwBpClqDyncKlepxv38gxdaVoL36r4FPVaqML2OnOuwdKdOOD3NIOP/+1ImOG1y63IqqEBhQ9IVB4jKJ1w4jHWNKSw82H12ra2o/0aJIGG8pmee1ZVpooyXnZpWUA5GVq0INPP3RHRZyxZmumD21AOvSKe7GuaffQJ7aj7Vx+kSTW89SWO2SEoB4W3CtI63w+yElLt0RxoKkpBkIPiw2SV3c1o69mGeHF252NEdaYZdjuvlezRPR4O8boii8hI0qDTGX3v3vy7Ha3zdn93K+v3xlCNeLxEFtxY9Y5c1ZsRjhr5uE24BL4pCwzImxlxvs0fX31NSim1D268tEidUk8jZCu6N3tjBl8c0Rf1u+inkuP3xLOoQgAwSTwsfVRFGkrLFhLwVL2bWoss9EWEyQMnGpjJROGHkCSR0BMl5aA7ux/b9He73lFk2QpmiV7KxMTlvOk5mNT/RDI+r2hQUjogVynEjY20gxKyjyV45FuhG/JFvXAKvdIXnnqDNmU=
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: bmweiner/jetpack
+    condition: "$TRAVIS_PYTHON_VERSION = '2.7'"
