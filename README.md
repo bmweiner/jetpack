@@ -1,14 +1,15 @@
 # jetpack
 
-A jetpack template (pack) is just a template for a package.
+Jetpack is a package
+[templating](https://en.wikipedia.org/wiki/Template_processor)
+system based on the [mustache](http://mustache.github.io/) template syntax.
 
-A pack could be a...
-
- * [python package](https://docs.python.org/2/tutorial/modules.html#packages)
- * [R package](https://cran.r-project.org/manuals.html#R-exts)
- * [Ruby gem](http://guides.rubygems.org/make-your-own-gem/)
-
-...really just any directory containing subdirectories and template files.
+A jetpack template (pack) is just a directory containing subdirectories and
+template files. A pack might be a
+[python package](https://docs.python.org/2/tutorial/modules.html#packages),
+[R package](https://cran.r-project.org/manuals.html#R-exts),
+[Ruby gem](http://guides.rubygems.org/make-your-own-gem/),
+anything...
 
 Packs are stored in a [hanger](https://github.com/bmweiner/hanger) and
 rendered by the jetpack utility.
