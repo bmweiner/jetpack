@@ -1,5 +1,7 @@
 # jetpack
 
+[![Build Status](https://travis-ci.org/bmweiner/jetpack.svg?branch=master)](https://travis-ci.org/bmweiner/jetpack)
+
 Jetpack is a package
 [templating](https://en.wikipedia.org/wiki/Template_processor)
 system based on the [mustache](http://mustache.github.io/) template syntax.
