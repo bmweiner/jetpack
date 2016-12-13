@@ -1,10 +1,10 @@
 """Implements core classes and functions."""
 
 import os
-import ConfigParser
 import json
 import datetime
 import six
+from six.moves import configparser
 import pystache
 
 class Pack(object):
@@ -25,7 +25,7 @@ class Pack(object):
                      'json': 'pack.json'}
         self.hanger = hanger
         self.name = name
-        self.cfg = ConfigParser.ConfigParser()
+        self.cfg = configparser.ConfigParser()
         self.hierarchy = []
         self.partials = Partials(self.hanger)
         self.context = {}
@@ -72,7 +72,7 @@ class Pack(object):
             raise IOError('No such pack: {}'.format(path))
 
     def _add_base(self, hanger, name, meta):
-        cfg = ConfigParser.ConfigParser()
+        cfg = configparser.ConfigParser()
         cfg.read(os.path.join(hanger, name, meta))
         try:
             bases = self._split_cfg(cfg.get('class', 'base'))
@@ -87,7 +87,7 @@ class Pack(object):
                     self.hierarchy.append(base)
             for base in bases:  # add parents of the bases
                 self._add_base(hanger, base, meta)
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError):
             pass
 
     def find_hierarchy(self):
@@ -111,7 +111,7 @@ class Pack(object):
     def get_cfg(self, section, option, default=None):
         try:
             return self.cfg.get(section, option)
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError):
             return default
 
     def builtin_context(self):
