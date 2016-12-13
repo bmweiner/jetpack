@@ -1,8 +1,7 @@
 import sys
 from setuptools import setup
 
-from jetpack import __version__
-from jetpack import __doc__ as description
+exec(open('jetpack/version.py').read())
 
 needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []
@@ -19,7 +18,7 @@ setup(name='jetpack',
       author='Benjamin Weiner',
       author_email='bmweiner@users.noreply.github.com',
       url='https://github.com/bmweiner/jetpack',
-      description=description,
+      description=__description__,
       long_description=long_description,
       classifiers = [
           'Topic :: Software Development :: Libraries :: Python Modules',
