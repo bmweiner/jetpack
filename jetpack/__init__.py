@@ -1,6 +1,4 @@
-"""A package templating system."""
+"""jetpack."""
 
 from . import core
 from .core import Pack, launch
-
-__version__ = '0.4'
