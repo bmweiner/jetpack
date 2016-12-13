@@ -3,8 +3,7 @@
 
 import os
 import argparse
-import ConfigParser
-from six.moves import input
+from six.moves import input, configparser
 from . import core
 
 def _exp_path(path):
@@ -12,7 +11,7 @@ def _exp_path(path):
 
 if __name__ == '__main__':
     # check config for hanger
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     dot = os.path.join(os.path.expanduser('~'), '.jetpack')
     config.read(dot)
     hanger = None
@@ -20,9 +19,9 @@ if __name__ == '__main__':
     try:
         hanger = config.get('path', 'hanger')
         hanger_str = ' (default: {})'.format(hanger)
-    except ConfigParser.NoSectionError:
+    except configparser.NoSectionError:
         config.add_section('path')
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         pass
 
     # init arg parser
