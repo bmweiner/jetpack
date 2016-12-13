@@ -3,4 +3,4 @@
 from . import core
 from .core import Pack, launch
 
-__version__ = '0.3'
+__version__ = '0.4'
