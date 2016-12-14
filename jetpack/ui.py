@@ -11,7 +11,7 @@ def _exp_path(path):
 
 if __name__ == '__main__':
     # check config for hanger
-    config = configparser.ConfigParser()
+    config = configparser.RawConfigParser()
     dot = os.path.join(os.path.expanduser('~'), '.jetpack')
     config.read(dot)
     hanger = None

@@ -25,7 +25,7 @@ class Pack(object):
                      'json': 'pack.json'}
         self.hanger = hanger
         self.name = name
-        self.cfg = configparser.ConfigParser()
+        self.cfg = configparser.RawConfigParser()
         self.hierarchy = []
         self.partials = Partials(self.hanger)
         self.context = {}
@@ -72,7 +72,7 @@ class Pack(object):
             raise IOError('No such pack: {}'.format(path))
 
     def _add_base(self, hanger, name, meta):
-        cfg = configparser.ConfigParser()
+        cfg = configparser.RawConfigParser()
         cfg.read(os.path.join(hanger, name, meta))
         try:
             bases = self._split_cfg(cfg.get('class', 'base'))
