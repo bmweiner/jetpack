@@ -10,8 +10,12 @@ try:
     import pypandoc
     long_description = pypandoc.convert('README.md', 'rst')
 except(IOError, ImportError):
+    pass
+try:
     with open('README.md') as file:
         long_description = file.read()
+except(IOError):
+    long_description = ''
 
 setup(name='jetpack',
       version=__version__,
