@@ -1,7 +1,8 @@
 import sys
 from setuptools import setup
 
-exec(open('jetpack/version.py').read())
+__version__ = '1.1'
+__description__='A package templating system.'
 
 needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []
