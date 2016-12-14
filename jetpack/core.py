@@ -42,7 +42,7 @@ class Pack(object):
 
     def _check_str(self, s):
         """Force str to iterable."""
-        if isinstance(s, basestring):
+        if isinstance(s, six.string_types):
             return [s]
         else:
             return s
